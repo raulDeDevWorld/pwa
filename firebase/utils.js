@@ -89,7 +89,7 @@ function getData(uid, setUserData) {
             get(ref(db, `/users/${uid}`)).then((snapshot) => {
                   //Mandamos la data al CONTEXT "userDB"
                   setUserData(snapshot.val())
-                  dataCompare(snapshot.val(), setUserData)
+                  // dataCompare(snapshot.val(), setUserData)
             }).catch((error) => {
                   console.error(error);
             });
@@ -103,8 +103,8 @@ function getData(uid, setUserData) {
                         readData()
                   }
                   const readData = () => {
-                        const transaction = swoouDB.transaction(['swoouPreuniversity'], 'readwrite')
-                        const objectStore = transaction.objectStore('swoouPreuniversity')
+                        const transaction = swoouDB.transaction(['userDB'], 'readwrite')
+                        const objectStore = transaction.objectStore('userDB')
                         const request = objectStore.get(uid)
 
                         request.onsuccess = () => {
@@ -121,7 +121,7 @@ function userDataRegister(object, router, url) {
 
       set(ref(db, `users/${uid}`), object)
             .then(() => {
-                  createIndexedDB({...object, date: Date()})
+                  createIndexedDB({...object, date: Date()}, 'userDB')
                   router.push(url)
             })
             .catch((error) => {
@@ -137,11 +137,11 @@ function userDataUpdate(object, setUserData, setUserSuccess) {
       update(ref(db, `users/${uid}`), {...object, date })
             .then(() => {
                   setUserSuccess && setUserSuccess('save')
-                  updateIndexedDB(object, setUserData)
+                  updateIndexedDB(object, setUserData, setUserSuccess, 'userDB')
                   getData(uid, setUserData)
             })            
       }else{
-            updateIndexedDB({...object, date}, setUserData, setUserSuccess)
+            updateIndexedDB({...object, date}, setUserData, setUserSuccess, 'userDB')
       }
 
 }
@@ -162,8 +162,8 @@ function getFac(university, setUniversityData) {
       });
 }
 
-//Creacion de IndexedDB
-function createIndexedDB(userDB) {
+//Creacion de IndexedDB SOLO SE EJECUTA UNA VEZ X CADA ALMACEN
+function createIndexedDB(userDB, rute) {
       const indexedDB = window.indexedDB
       if(indexedDB){
             let swoouDB
@@ -173,25 +173,27 @@ function createIndexedDB(userDB) {
                   addData()                
             }
             request.onupgradeneeded = (e) => {
-                  console.log(e.target.result)
                   swoouDB = e.target.result
-                  const objectStore = swoouDB.createObjectStore('swoouPreuniversity', {
+                  const objectStoreUserDB = swoouDB.createObjectStore('userDB', {
                         keyPath: 'uid'
-                  })     
+                  }) 
+                  const objectStoreBAnkDB = swoouDB.createObjectStore('bankDB', {
+                        keyPath: 'facultad'
+                  })    
             }       
             request.onerror = (err) => {
                   console.log(err)
             }
             const addData = () => {
-                  const transaction = swoouDB.transaction(['swoouPreuniversity'], 'readwrite')
-                  const objectStore = transaction.objectStore('swoouPreuniversity')
+                  const transaction = swoouDB.transaction([rute], 'readwrite')
+                  const objectStore = transaction.objectStore(rute)
                   const request = objectStore.add(userDB)
             }
       }
 }
 
 //Actualizacion de IndexedDB
-function updateIndexedDB(newDB, setUserData, setUserSuccess) {
+function updateIndexedDB(newDB, setUserData, setUserSuccess, rute,) {
       const indexedDB = window.indexedDB
 
       if(indexedDB){
@@ -203,14 +205,14 @@ function updateIndexedDB(newDB, setUserData, setUserSuccess) {
                   transactionUpdate ()
             }
             function transactionUpdate () {
-                  const transaction = swoouDB.transaction(['swoouPreuniversity'], 'readwrite')
-                  const objectStore = transaction.objectStore('swoouPreuniversity')
+                  const transaction = swoouDB.transaction([rute], 'readwrite')
+                  const objectStore = transaction.objectStore(rute)
                   const requestObjectStore = objectStore.get(auth.currentUser.uid)
 
                   requestObjectStore.onsuccess = () => {
                         objectStore.put({...requestObjectStore.result, ...newDB})
                         setUserData({...requestObjectStore.result, ...newDB})
-                        setUserSuccess && setUserSuccess('save')
+                        setUserSuccess ? setUserSuccess('save') : ''
                   }
             }
 
@@ -222,16 +224,19 @@ function dataCompare(firebaseDB, setUserData) {
       const indexedDB = window.indexedDB
       if(indexedDB){
       let swoouDB
+      // OPEN habre una base de datos, caso que no exista lo crea con la referencia solicitada
       const request = indexedDB.open('swoouPreuniversity', 1)
 
       request.onsuccess = async (e) => {
+            //RESULT almacena los detalles de la base de datos
             swoouDB = e.target.result
             transactionDataCompare ()
       }
 
       request.onupgradeneeded = (e) => {
-            console.log(e.target.result)
+            //RESULT almacena los detalles de la base de datos
             swoouDB = e.target.result
+            //El OBJECTSTORE es el almacen donde se guardaran los datos JSON
             const objectStore = swoouDB.createObjectStore('swoouPreuniversity', {
                   keyPath: 'uid'
             })     
@@ -277,13 +282,49 @@ function dataCompare(firebaseDB, setUserData) {
 
 
 //Traemos todo el banco de preguntas
-async function getAllBank(university, subjects, setUserBank) {
-      
+function getAllBank(userDB, subjects, setUserBank) {
+      const indexedDB = window.indexedDB
+      if (indexedDB) {
+            let swoouDB
+            const request = indexedDB.open('swoouPreuniversity', 1)
+
+            request.onsuccess = async (e) => {
+                  swoouDB = e.target.result
+                  verify()
+            }
+            request.onupgradeneeded = (e) => {
+                  swoouDB = e.target.result
+                  const objectStoreUserDB = swoouDB.createObjectStore('userDB', {
+                        keyPath: 'uid'
+                  })
+                  const objectStoreBAnkDB = swoouDB.createObjectStore('bankDB', {
+                        keyPath: 'facultad'
+                  })
+            }
+            request.onerror = (err) => {
+                  console.log(err)
+            }
+            function verify () {
+                  const transaction = swoouDB.transaction('bankDB', 'readwrite')
+                  const objectStore = transaction.objectStore('bankDB')
+                  const getRequest = objectStore.get(`${userDB.university}-${userDB.facDB}`)
+                  
+                  getRequest.onsuccess = async (e) => {
+                        e.target.result != undefined ? setUserBank(e.target.result) : getUserBank(userDB, subjects, setUserBank)
+                  }
+            }
+
+      } else {
+            getUserBank(userDB, subjects, setUserBank)
+      }
+}
+
+async function getUserBank(userDB, subjects, setUserBank) {
       const arrSubjects = Object.keys(subjects)
 
       const bankSubjects = await arrSubjects.reduce(async (mainObject, item) => {
 
-            const oneBankSubjects = await get(ref(db, `${university.toLowerCase()}/Banco/${item}`)).then((snapshot) => {
+            const oneBankSubjects = await get(ref(db, `${userDB.university.toLowerCase()}/Banco/${item}`)).then((snapshot) => {
                   console.log('se esta ejecutando')
                   let data = snapshot.val()
                   const obj = {}
@@ -297,17 +338,31 @@ async function getAllBank(university, subjects, setUserBank) {
             return { ...await mainObject, ...oneBankSubjects }
 
       }, {})
-      setUserBank(bankSubjects)
+
+      const object = {
+            facultad: `${userDB.university}-${userDB.facDB}`,
+            date: Date(),
+            bank: bankSubjects
+      }
+      if (indexedDB) {
+            createIndexedDB(object, 'bankDB')
+            setUserBank(object)
+      }else{
+            setUserBank(object)
+      }
 }
 
+
+
+
 //Seleccionamos las preguntas para el simulacro  
-function getDataForSimulacro(university, subjects, materia, cantidad, simulacro, setUserSimulacro, bank, setUserBank) {
+function getDataForSimulacro(userDB, subjects, materia, cantidad, simulacro, setUserSimulacro, bank, setUserBank) {
       //Consulta si banco existe
-      if (bank) {
+      if (bank && bank.bank) {
             //Consulta si la materia existe en el banco ? Se pasa todo el banco al context mas la cantidad de preguntas requeridas : Hacemos una peticion a la base de datos
-            bank[materia.toLowerCase()] ? setUserSimulacro(bank[materia.toLowerCase()], cantidad) : console.log('no exist')
+            bank.bank[materia.toLowerCase()] ? setUserSimulacro(bank.bank[materia.toLowerCase()], cantidad) : console.log('no exist')
       } else {
-            getAllBank(university, subjects, setUserBank)
+            getAllBank(userDB, subjects, setUserBank)
       }
 }
 

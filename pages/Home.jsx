@@ -13,7 +13,7 @@ import { useState, useEffect } from 'react'
 
 
 function Home() {
-    const { setUserAvatar, avatar, user, userDB, success, setUserSuccess } = useUser()
+    const { setUserAvatar, avatar, user, userDB, success, setUserSuccess, bank } = useUser()
     const router = useRouter()
     function Banco() {
             router.push('/Banco')

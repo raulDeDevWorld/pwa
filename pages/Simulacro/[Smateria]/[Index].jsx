@@ -76,7 +76,7 @@ function Simulacro() {
             return { ...object, ...newItemObject }
         }, {})
 
-        userDataUpdate({ ...oldObject, ...newObject }, setUserData, `${router.query.Smateria.toLowerCase()}/progress`)
+        userDataUpdate({ ...oldObject, ...newObject }, setUserData, setUserSuccess)
         router.push(`/Simulacro/${router.query.Smateria}/Result`)
     }
     function nav(i) {
@@ -86,12 +86,12 @@ function Simulacro() {
         setSelect(null)
     }
 
-    // simulacro && router.query.Index ? console.log(simulacro) : ''
+ console.log(simulacro)
 
     useEffect(() => {
         fisherYatesShuffle(fisherArray)
         userDB.university !== null && userDB.university !== undefined
-            ? getDataForSimulacro(userDB.university, userDB.subjects , router.query.Smateria, userDB.subjects[router.query.Smateria.toLowerCase()].config.questions, simulacro, setUserSimulacro, bank, setUserBank)
+            ? getDataForSimulacro(userDB, userDB.subjects , router.query.Smateria, userDB.subjects[router.query.Smateria.toLowerCase()].config.questions, simulacro, setUserSimulacro, bank, setUserBank)
             : ''
     }, [userDB.university, bank]);
 

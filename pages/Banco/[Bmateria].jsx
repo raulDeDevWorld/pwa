@@ -57,9 +57,9 @@ function Simulacro() {
     useEffect(() => {
         if (userDB.university) {
             if (bank) {
-                bank[router.query.Bmateria.toLowerCase()] ? console.log('exist') : console.log('no exist')
+                bank.bank[router.query.Bmateria.toLowerCase()] ? console.log('exist') : console.log('no exist')
             } else {
-                getAllBank(userDB.university, userDB.subjects, setUserBank)   
+                getAllBank(userDB, userDB.subjects, setUserBank)   
             }
         }
         dataItem? setDataProgress(userDB.subjects[router.query.Bmateria.toLowerCase()].progress[dataItem.id]) :''
@@ -83,9 +83,9 @@ function Simulacro() {
         <PageSimulacroLayout>
             {userDB !== 'loading' &&
                 <div className={style.container}>
-                    {bank && bank[router.query.Bmateria.toLowerCase()] &&
+                    {bank && bank.bank[router.query.Bmateria.toLowerCase()] &&
                         <>
-                            {bank[router.query.Bmateria.toLowerCase()].map((item, index) =>
+                            {bank.bank[router.query.Bmateria.toLowerCase()].map((item, index) =>
                                 <div key={index} className={style.itemBox}>
                                     <li className={style.ask} onClick={() => modalHandler(item, index)}>
                                         {                                               /*Consultamos si un item (len1) existe en el progres && validamos que su valor no sea false*/}
