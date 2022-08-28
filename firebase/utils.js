@@ -130,20 +130,20 @@ function userDataRegister(object, router, url) {
 }
 
 //Actualizacion de DATOS de usuario
-function userDataUpdate(object, setUserData, setUserSuccess) {
+function userDataUpdate(object, setUserData, setUserSuccess, query, dataIDB) {
       const uid = auth.currentUser.uid
       const date = Date()
       if (navigator.onLine) {
-      update(ref(db, `users/${uid}`), {...object, date })
+      update(ref(db, `users/${uid}/${query ? query :''}`), object)
             .then(() => {
-                  setUserSuccess && setUserSuccess('save')
-                  updateIndexedDB(object, setUserData, setUserSuccess, 'userDB')
+                  update(ref(db, `users/${uid}`), {date   })
+                  updateIndexedDB(query ? dataIDB : object, setUserData, setUserSuccess, 'userDB')
                   getData(uid, setUserData)
+                  setUserSuccess && setUserSuccess('save')
             })            
       }else{
-            updateIndexedDB({...object, date}, setUserData, setUserSuccess, 'userDB')
+            updateIndexedDB(query ? {...dataIDB, date} : {...object, date}, setUserData, setUserSuccess, 'userDB')
       }
-
 }
 
 //Consulta de FACULTADES para el registro
@@ -192,7 +192,7 @@ function createIndexedDB(userDB, rute) {
       }
 }
 
-//Actualizacion de IndexedDB
+//Actualizacion de IndexedDB Online y offline
 function updateIndexedDB(newDB, setUserData, setUserSuccess, rute,) {
       const indexedDB = window.indexedDB
 

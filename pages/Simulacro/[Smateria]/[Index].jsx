@@ -57,7 +57,9 @@ function Simulacro() {
         setSelect(null)
     }
     function finish() {
+        //Todo el Progress actual
         const oldObject = userDB.subjects[router.query.Smateria.toLowerCase()].progress
+        //Nuevo Progress a enviar 
         const newObject = simulacro.reduce((object, item, index) => {
             const newItemObject = {}
             // exit === DB
@@ -65,7 +67,7 @@ function Simulacro() {
 
             const answer = simulacro[index].userAnswer === simulacro[index].respuesta
             const answerUndefined = simulacro[index].userAnswer
-            // console.log(exist.mistake + 1)
+
             newItemObject[item.id] = {
                 difficulty: exist !== undefined ? exist.difficulty : false,
                 mistakes: exist === undefined ? (answer === false && answerUndefined !== undefined ? 1 : 0) : (answer === false && answerUndefined !== undefined ? exist.mistakes + 1 : exist.mistakes),
@@ -75,8 +77,9 @@ function Simulacro() {
 
             return { ...object, ...newItemObject }
         }, {})
-
-        userDataUpdate({ ...oldObject, ...newObject }, setUserData, setUserSuccess)
+        const indexedDB = {subjects: {...userDB.subjects, [router.query.Smateria.toLowerCase()]: {...userDB.subjects[router.query.Smateria.toLowerCase()], progress : { ...oldObject, ...newObject }}}}
+        const query = `subjects/${router.query.Smateria.toLowerCase()}/progress`
+        userDataUpdate({ ...oldObject, ...newObject }, setUserData, setUserSuccess, query, indexedDB)
         router.push(`/Simulacro/${router.query.Smateria}/Result`)
     }
     function nav(i) {
