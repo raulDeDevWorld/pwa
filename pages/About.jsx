@@ -1,6 +1,5 @@
 import PageLayout from '../layouts/PageLayout'
 import { WithAuth } from '../HOCs/WithAuth'
-import Subtitle from '../components/Subtitle'
 import Link from 'next/link'
 import style from '../styles/About.module.css'
 

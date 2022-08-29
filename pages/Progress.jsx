@@ -1,26 +1,15 @@
-import { useRouter } from 'next/router'
 import { useUser } from '../context/Context.js'
 import { WithAuth } from '../HOCs/WithAuth'
-import Success from '../components/Success'
-import Error from '../components/Error'
 import { getAllBank } from '../firebase/utils'
 import PageSimulacroLayout from '../layouts/PageSimulacroLayout'
 import { CircularProgressBar } from '@tomik23/react-circular-progress-bar';
 import style from '../styles/Progress.module.css'
-import Button from '../components/Button'
 import ProgressBar from '../components/ProgressBar'
-
-import ProgressC from '../components/ProgressC'
-import Modal from '../components/Modal'
 import { useState, useEffect } from 'react'
 
-
-
-
-
 function Progress() {
-    const { user, userDB, id, setTeacherId, setUserSuccess, success, bank, setUserBank } = useUser()
-    // const [mode, setMode] = useState(false)
+    const { userDB, bank, setUserBank } = useUser()
+
     // array de progresos
     const [progress, setProgress] = useState(null)
 
@@ -47,7 +36,6 @@ function Progress() {
         }, {})
         // summary of progress in object
         setProgress(dataProgress)
-
     }
 
     function getSpecificProgress(req, progress) {
@@ -62,7 +50,6 @@ function Progress() {
         return data
     }
 
-
     function getAllBankLength() {
         if (bank) {
             const bankLength = Object.values(bank).reduce((num, item) => {
@@ -73,7 +60,6 @@ function Progress() {
         } else {
             return setUserBank(null)
         }
-
     }
 
     useEffect(() => {
@@ -85,7 +71,6 @@ function Progress() {
         }
     }, [userDB]);
 
-    console.log(bank)
     return (
         <PageSimulacroLayout>
             {userDB !== null && userDB !== 'loading' &&

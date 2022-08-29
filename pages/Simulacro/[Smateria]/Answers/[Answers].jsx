@@ -1,87 +1,47 @@
-
-import { useState, useEffect } from 'react'
 import { useUser } from '../../../../context/Context.js'
-import { setProgress, setErrors, userDataUpdate, getEspecificData } from '../../../../firebase/utils'
+import { userDataUpdate } from '../../../../firebase/utils'
 import { useRouter } from 'next/router'
 import Error from '../../../../components/Error'
 import Success from '../../../../components/Success'
-
 import PageSimulacro from '../../../../layouts/PageSimulacro'
 import { WithAuth } from '../../../../HOCs/WithAuth'
 import style from '../../../../styles/Smateria.module.css'
 
-
 function Simulacro() {
-    const { userDB, setUserSuccess, success, setUserData, simulacro, setUserSimulacro, bank, setUserBank, fisherArray } = useUser()
-    const [select, setSelect] = useState(null)
-    const [count, setCount] = useState(0)
-
+    const { userDB, setUserSuccess, success, setUserData, simulacro, fisherArray } = useUser()
     const router = useRouter()
-
-    function fisherYatesShuffle(arr) {
-        for (var i = arr.length - 1; i > 0; i--) {
-            var j = Math.floor(Math.random() * (i + 1)); //random index
-            [arr[i], arr[j]] = [arr[j], arr[i]]; // swap
-        }
-        return setArray(arr)
-    }
-
-    // function changeDifficult(data) {
-    //     console.log(`${data}`)
-    //     const object = { difficulty: data }
-    //     userDataUpdate(object, setUserData, `/${router.query.Smateria.toLowerCase()}/progress/${simulacro[router.query.Answers - 1].id}`)
-    // }
 
     function changeDifficult(difficulty) {
         const object = { difficulty }
 
         difficulty == 'F' && userDB.subjects[router.query.Smateria.toLowerCase()].progress[simulacro[router.query.Answers - 1].id].success >= 3 && userDB.subjects[router.query.Smateria.toLowerCase()].progress[simulacro[router.query.Answers - 1].id].mistakes * 3 <= userDB.subjects[router.query.Smateria.toLowerCase()].progress[simulacro[router.query.Answers - 1].id].success
-            ? userDataUpdate(object, setUserData, `/${router.query.Smateria.toLowerCase()}/progress/${simulacro[router.query.Answers - 1].id}`, setUserSuccess)
+            ? userDataUpdate(userDB, object, setUserData, `/${router.query.Smateria.toLowerCase()}/progress/${simulacro[router.query.Answers - 1].id}`, setUserSuccess)
             : (difficulty == 'F' ? setUserSuccess('noF') : '')
 
         difficulty == 'R' && userDB.subjects[router.query.Smateria.toLowerCase()].progress[simulacro[router.query.Answers - 1].id].success >= 2 && userDB.subjects[router.query.Smateria.toLowerCase()].progress[simulacro[router.query.Answers - 1].id].mistakes * 2 <= userDB.subjects[router.query.Smateria.toLowerCase()].progress[simulacro[router.query.Answers - 1].id].success
-            ? userDataUpdate(object, setUserData, `/${router.query.Smateria.toLowerCase()}/progress/${simulacro[router.query.Answers - 1].id}`, setUserSuccess)
+            ? userDataUpdate(userDB, object, setUserData, `/${router.query.Smateria.toLowerCase()}/progress/${simulacro[router.query.Answers - 1].id}`, setUserSuccess)
             : (difficulty == 'R' ? setUserSuccess('noR') : '')
 
         difficulty == 'D' && userDB.subjects[router.query.Smateria.toLowerCase()].progress[simulacro[router.query.Answers - 1].id]
-            ? userDataUpdate(object, setUserData, `/${router.query.Smateria.toLowerCase()}/progress/${simulacro[router.query.Answers - 1].id}`, setUserSuccess)
+            ? userDataUpdate(userDB, object, setUserData, `/${router.query.Smateria.toLowerCase()}/progress/${simulacro[router.query.Answers - 1].id}`, setUserSuccess)
             : (difficulty == 'D' ? setUserSuccess('noD') : '')
     }
-
     function back() {
         router.query.Answers > 1
             ? router.push(`/Simulacro/${router.query.Smateria}/Answers/${parseInt(router.query.Answers) - 1}`)
             : ''
-        setSelect(null)
     }
     function next() {
         router.query.Answers < simulacro.length
             ? router.push(`/Simulacro/${router.query.Smateria}/Answers/${parseInt(router.query.Answers) + 1}`)
             : ''
-        setSelect(null)
+    }
+    function nav(i) {
+        router.push(`/Simulacro/${router.query.Smateria}/Answers/${parseInt(i) + 1}`)
     }
     function finish() {
         router.push(`/Home/`)
     }
-    function nav(i) {
-        router.push(`/Simulacro/${router.query.Smateria}/Answers/${parseInt(i) + 1}`)
-        setSelect(null)
-    }
-    // function changeDifficult (data) {
-    //     `${router.query.Smateria.toLowerCase()}/progress/${simulacro[router.query.Answers - 1].id}`
-    //     console.log(simulacro[router.query.Answers - 1].id)
-    // }
-
-    // console.log(userDB.subjects[router.query.Smateria.toLowerCase()].progress)
-    // console.log(simulacro)
-
-
-    // fisherYatesShuffle(array)
-    // userDB.university !== null && userDB.university !== undefined
-    //     ? getEspecificData(userDB.university, router.query.Smateria, userDB.subjects[router.query.Smateria.toLowerCase()].config.questions, simulacro, setUserSimulacro, bank, setUserBank)
-    //     : ''
-
-
 
     return (
         <PageSimulacro>
@@ -133,6 +93,49 @@ function Simulacro() {
 export default WithAuth(Simulacro)
 
 
+
+
+
+
+
+
+
+
+
+
+// function fisherYatesShuffle(arr) {
+//     for (var i = arr.length - 1; i > 0; i--) {
+//         var j = Math.floor(Math.random() * (i + 1)); //random index
+//         [arr[i], arr[j]] = [arr[j], arr[i]]; // swap
+//     }
+//     return setArray(arr)
+// }
+
+
+
+    // function changeDifficult(data) {
+    //     console.log(`${data}`)
+    //     const object = { difficulty: data }
+    //     userDataUpdate(object, setUserData, `/${router.query.Smateria.toLowerCase()}/progress/${simulacro[router.query.Answers - 1].id}`)
+    // }
+
+
+
+
+
+    // function changeDifficult (data) {
+    //     `${router.query.Smateria.toLowerCase()}/progress/${simulacro[router.query.Answers - 1].id}`
+    //     console.log(simulacro[router.query.Answers - 1].id)
+    // }
+
+    // console.log(userDB.subjects[router.query.Smateria.toLowerCase()].progress)
+    // console.log(simulacro)
+
+
+    // fisherYatesShuffle(array)
+    // userDB.university !== null && userDB.university !== undefined
+    //     ? getEspecificData(userDB.university, router.query.Smateria, userDB.subjects[router.query.Smateria.toLowerCase()].config.questions, simulacro, setUserSimulacro, bank, setUserBank)
+    //     : ''
 
 
 

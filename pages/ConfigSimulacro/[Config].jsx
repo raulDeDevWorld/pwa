@@ -1,9 +1,8 @@
 import Button from '../../components/Button'
-import Subtitle from '../../components/Subtitle'
 import { useState, useEffect } from 'react'
 import PageSimulacroLayout from '../../layouts/PageSimulacroLayout'
 import { useUser } from '../../context/Context.js'
-import { userDataUpdate, updateBank, getAllBank } from '../../firebase/utils'
+import { userDataUpdate, getAllBank } from '../../firebase/utils'
 import { useRouter } from 'next/router'
 import { WithAuth } from '../../HOCs/WithAuth'
 import Error from '../../components/Error'
@@ -11,37 +10,31 @@ import Success from '../../components/Success'
 import style from '../../styles/PlayConfig.module.css'
 import BlackFont from '../../components/BlackFont'
 import PremiumC from '../../components/PremiumC'
-import { set } from 'lodash'
 
 function PlayConfig() {
-    const { userDB, setUserData,setUserSuccess, success, bank, setUserBank } = useUser()
+    const { userDB, setUserData, setUserSuccess, success, bank, setUserBank } = useUser()
     const [arrF, setArrF] = useState(null)
     const [arrR, setArrR] = useState(null)
     const [arrD, setArrD] = useState(null)
     const [time, setTime] = useState(null)
     const [questions, setQuestions] = useState(null)
     const [difficulty, setDifficulty] = useState(null)
-
     const router = useRouter()
 
-
-    function back() {
-        router.back()
-    }  
-    function save () {
+    function save() {
         const newTime = time == null ? userDB.subjects[router.query.Config.toLowerCase()].config.time : time
         const newQuestions = questions == null ? userDB.subjects[router.query.Config.toLowerCase()].config.questions : questions
         const newDifficulty = difficulty == null ? userDB.subjects[router.query.Config.toLowerCase()].config.difficulty : difficulty
 
-        if(newDifficulty == 'facil' && arrF.length < newQuestions){
+        if (newDifficulty == 'facil' && arrF.length < newQuestions) {
             setUserSuccess('insuficiente')
             return
         }
-        if(newDifficulty == 'regular' && arrF.length < newQuestions){
+        if (newDifficulty == 'regular' && arrF.length < newQuestions) {
             setUserSuccess('insuficiente')
             return
         }
-        if(newDifficulty == 'dificil' && arrF.length < newQuestions){
+        if (newDifficulty == 'dificil' && arrF.length < newQuestions) {
             setUserSuccess('insuficiente')
             return
         }
@@ -52,12 +45,12 @@ function PlayConfig() {
                 difficulty: newDifficulty,
             }
         }
-        userDataUpdate(object, setUserData, router.query.Config, setUserSuccess)
+        userDataUpdate(userDB, object, setUserData, router.query.Config, setUserSuccess)
         setTime(null)
         setQuestions(null)
         setDifficulty(null)
     }
-    async function progressHandler () {
+    async function progressHandler() {
         const progressObj = await userDB.subjects[router.query.Config.toLowerCase()].progress
         const arrProgressObj = Object.values(progressObj)
 
@@ -69,22 +62,22 @@ function PlayConfig() {
         setArrR(arrR)
         setArrD(arrD)
     }
-    
+
     useEffect(() => {
         if (userDB.university) {
             if (bank) {
                 bank[router.query.Config.toLowerCase()] ? console.log('exist') : console.log('no exist')
             } else {
-                getAllBank(userDB.university, userDB.subjects, setUserBank)   
+                getAllBank(userDB.university, userDB.subjects, setUserBank)
             }
             progressHandler()
         }
     }, [userDB.university, bank])
+
     return (
         <PageSimulacroLayout>
             {success == 'save' && <Success>Guardado</Success>}
             {success == 'insuficiente' && <Error>Cantidad de preguntas insuficientes</Error>}
-            
             {userDB !== null && userDB !== 'loading' && bank && bank[router.query.Config.toLowerCase()] &&
                 <div className={style.container}>
                     <div className={style.userDataContainer}>
@@ -139,3 +132,37 @@ function PlayConfig() {
     )
 }
 export default WithAuth(PlayConfig)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// function back() {
+//     router.back()
+// }  
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,5 +1,4 @@
 import Button from '../components/Button'
-import PremiumC from '../components/PremiumC'
 import { useRouter } from 'next/router'
 import PageUserLayout from '../layouts/PageUserLayout'
 import { WithAuth } from '../HOCs/WithAuth'
@@ -9,13 +8,10 @@ import Subtitle from '../components/Subtitle'
 import Error from '../components/Error'
 import Paragraph from '../components/Paragraph'
 import BlackFont from '../components/BlackFont'
-
 import style from '../styles/Register.module.css'
-import { useState } from 'react'
-
 
 function Register() {
-    const { setUserAvatar, avatar, user, userDB, success, setUserSuccess } = useUser()
+    const { setUserAvatar, avatar, user, success, setUserSuccess } = useUser()
     const router = useRouter()
 
     function avatarClick(a) {

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
-import { useUser, setUniversityData } from '../context/Context.js'
+import { useUser} from '../context/Context.js'
 import PageUserLayout from '../layouts/PageUserLayout'
 import { WithAuth } from '../HOCs/WithAuth'
 import { userDataUpdate, getFac } from '../firebase/utils'
@@ -17,14 +17,13 @@ function Facultad(props) {
     const [fac, setFac] = useState(null)
     const [facDB, setFacDB] = useState(null)
 
-
     function continuar() {
         if (fac !== null) {
             const object = {
                 fac,
                 facDB,
             }
-            userDataUpdate(object, setUserData, setUserSuccess)
+            userDataUpdate(userDB, object, setUserData, setUserSuccess)
             router.push('/Carrera')
         }
     }
@@ -36,12 +35,11 @@ function Facultad(props) {
         setFac(fac)
         setFacDB(facDB)
     }
-    console.log(uniData)
-    console.log(userDB)
 
     useEffect(() => {
         userDB.university ? getFac(userDB.university, setUniversityData) : ''
     }, [userDB]);
+
     return (
         <PageUserLayout className={style.container}>
             <div className={style.container}>
@@ -68,7 +66,6 @@ function Facultad(props) {
         </PageUserLayout>
     )
 }
-
 
 export default WithAuth(Facultad)
 

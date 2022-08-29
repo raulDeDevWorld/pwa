@@ -2,14 +2,12 @@
 import { useRouter } from 'next/router'
 import Button from '../components/Button'
 import PremiumC from '../components/PremiumC'
-// import PremiumPluss from '../components/PremiumPluss'
 import { getCode } from '../firebase/utils'
 import { useUser } from '../context/Context.js'
 import PageUserLayout from '../layouts/PageUserLayout'
-
 import { WithAuth } from '../HOCs/WithAuth'
 import Success from '../components/Success'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import Error from '../components/Error'
 import Modal from '../components/Modal'
 import style from '../styles/Premium.module.css'
@@ -30,16 +28,12 @@ function Premium() {
         e.preventDefault()
         router.back()
     }
-    function next() {
-        router.push("https://api.whatsapp.com/send?phone=+59173447725&text=Buenas,%20me%20gustaria%20adquirir%20Swoou%20Premium...%20%20")
-    }
 
     function enlace() {
         router.push("/Policy")
     }
 
     return (
-
         <PageUserLayout>
             {success == true && <Success>Felicidades eres PREMIUM</Success>}
             {success === 'NoInternet' && <Error>Esta funcion necesita conexion</Error>}
@@ -57,7 +51,6 @@ function Premium() {
                     <li className={style.li}>Soporte Tecnico <img src='/right.svg' className={style.right} alt='rigth'></img></li>
                 </ul>
 
-
                 <div className={style.buttonsContainer}>
                     {userDB.premium === false ?
                         <>
@@ -68,16 +61,17 @@ function Premium() {
                             <div>
                                 <a className={style.enlace} onClick={enlace}>Terminos y condiciones Swoou Premium</a> <br />
                             </div>
-                        </>:
+                        </> :
                         <div className={style.codeInfoContainer}>
-                        <span className={style.span}> Premium Code:</span>
-                        <span className={style.span}>{userDB.premium}</span>
-                        <a className={style.enlace} onClick={enlace}>Terminos y condiciones Swoou Premium</a>
-                    </div>
+                            <span className={style.span}> Premium Code:</span>
+                            <span className={style.span}>{userDB.premium}</span>
+                            <a className={style.enlace} onClick={enlace}>Terminos y condiciones Swoou Premium</a>
+                        </div>
                     }
                 </div>
 
             </div>
+
             <Modal mode={mode} click={x} text={'Ingresa tu codigo de activación'}>
                 <form className={style.form}>
                     <img src="/robot.png" className={style.modalBoot} alt="user photo" />
@@ -86,6 +80,7 @@ function Premium() {
                     <Button style='buttonPrimary' click={nextClick}>Continuar</Button>
                 </form>
             </Modal>
+
         </PageUserLayout>
     )
 }

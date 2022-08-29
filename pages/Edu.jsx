@@ -1,4 +1,3 @@
-import { useEffect } from 'react'
 import { useRouter } from 'next/router'
 import { useUser } from '../context/Context.js'
 import PageUserLayout from '../layouts/PageUserLayout'
@@ -10,24 +9,14 @@ import style from '../styles/Edu.module.css'
 import BlackFont from '../components/BlackFont'
 
 function Edu() {
-    const { userDB, uniData, setUserData, setUserSuccess } = useUser()
+    const { userDB, setUserData, setUserSuccess } = useUser()
     const router = useRouter()
-
 
     function click(university) {
         const object = { university, }
-        userDataUpdate(object, setUserData, setUserSuccess)
+        userDataUpdate(userDB, object, setUserData, setUserSuccess)
         router.push(`/University`)
     }
-
-    function back() {
-        router.back()
-    }
-
-    // useEffect(() => {
-    //     userDB === null ? router.push('/Register'): ''
-    // }, [userDB]);
-    console.log(uniData)
 
     return (
         <PageUserLayout>
@@ -46,12 +35,20 @@ function Edu() {
                                 <Button style={'buttonSecondary'} click={() => click('UAGRM')}>UAGRM</Button>
                             </div>
                         </BlackFont>
-
                     </div>
-
                 </>}
             </div>
         </PageUserLayout>
     )
 }
 export default WithAuth(Edu)
+
+
+
+
+
+
+
+    // useEffect(() => {
+    //     userDB === null ? router.push('/Register'): ''
+    // }, [userDB]);

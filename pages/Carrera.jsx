@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
-import { useUser, setUniversityData } from '../context/Context.js'
+import { useUser } from '../context/Context.js'
 import PageUserLayout from '../layouts/PageUserLayout'
 import { WithAuth } from '../HOCs/WithAuth'
 import { userDataUpdate, getFac, getAllBank } from '../firebase/utils'
@@ -8,15 +8,12 @@ import Subtitle from '../components/Subtitle'
 import BlackFont from '../components/BlackFont'
 import Button from '../components/Button'
 import style from '../styles/Facultad.module.css'
-import { firebaseConfig } from '../firebase/config.js'
-
 
 function Carrera() {
-
     const router = useRouter()
     const { userDB, uniData, setUniversityData, setUserData, setUserSuccess, setUserBank, bank } = useUser()
     const [career, setCareer] = useState(null)
-    console.log(bank)
+
     function continuar() {
         if (career !== null) {
             const materiasDB = uniData.fac[userDB.facDB].materias
@@ -32,7 +29,7 @@ function Carrera() {
                 return target;
             }, {})
 
-            userDataUpdate({
+            userDataUpdate(userDB, {
                 subjects: obj
             }, setUserData, setUserSuccess)
 
@@ -48,12 +45,12 @@ function Carrera() {
 
     function setCareerData(c) {
         setCareer(c)
-
     }
 
     useEffect(() => {
         userDB.university ? getFac(userDB.university, setUniversityData) : ''
     }, [userDB, career, bank]);
+
     return (
         <PageUserLayout>
             {userDB.facDB && <div className={style.container}>
@@ -80,7 +77,6 @@ function Carrera() {
         </PageUserLayout>
     )
 }
-
 
 export default WithAuth(Carrera)
 

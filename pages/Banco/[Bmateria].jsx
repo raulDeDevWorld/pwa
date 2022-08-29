@@ -1,17 +1,14 @@
-
 import { useState, useEffect } from 'react'
 import { useUser } from '../../context/Context.js'
-import { setProgress, setErrors, userDataUpdate, updateBank, getAllBank } from '../../firebase/utils'
+import { userDataUpdate, getAllBank } from '../../firebase/utils'
 import Error from '../../components/Error'
 import Success from '../../components/Success'
 import { useRouter } from 'next/router'
 import ProgressBar from '../../components/ProgressBar'
 import Modal from '../../components/Modal'
-import BlackFont from '../../components/BlackFont'
 import PageSimulacroLayout from '../../layouts/PageSimulacroLayout'
 import { WithAuth } from '../../HOCs/WithAuth'
 import style from '../../styles/Bmateria.module.css'
-
 
 function Simulacro() {
     const { userDB, setUserSuccess, success, setUserData, simulacro, setUserSimulacro, bank, setUserBank, fisherArray, setUserFisherArray } = useUser()
@@ -22,7 +19,6 @@ function Simulacro() {
     const [seeRes, setSeeRes] = useState(false)
 
     const router = useRouter()
-
 
     function handlerSeeRes() {
         setSeeRes(!seeRes)
@@ -38,46 +34,29 @@ function Simulacro() {
     function changeDifficult(difficulty) {
         const object = { difficulty }
 
-        difficulty == 'F' && dataProgress && dataProgress.success >= 3 && dataProgress.mistakes * 3 <= dataProgress.success 
-        ? userDataUpdate(object, setUserData, `/${router.query.Bmateria.toLowerCase()}/progress/${dataItem.id}`, setUserSuccess)
-        : (difficulty == 'F' ? setUserSuccess('noF') :'')
+        difficulty == 'F' && dataProgress && dataProgress.success >= 3 && dataProgress.mistakes * 3 <= dataProgress.success
+            ? userDataUpdate(userDB, object, setUserData, `/${router.query.Bmateria.toLowerCase()}/progress/${dataItem.id}`, setUserSuccess)
+            : (difficulty == 'F' ? setUserSuccess('noF') : '')
 
-        difficulty == 'R' && dataProgress && dataProgress.success >= 2 && dataProgress.mistakes * 2 <= dataProgress.success 
-        ? userDataUpdate(object, setUserData, `/${router.query.Bmateria.toLowerCase()}/progress/${dataItem.id}`, setUserSuccess)
-        : (difficulty == 'R' ? setUserSuccess('noR') :'')
+        difficulty == 'R' && dataProgress && dataProgress.success >= 2 && dataProgress.mistakes * 2 <= dataProgress.success
+            ? userDataUpdate(userDB, object, setUserData, `/${router.query.Bmateria.toLowerCase()}/progress/${dataItem.id}`, setUserSuccess)
+            : (difficulty == 'R' ? setUserSuccess('noR') : '')
 
-        difficulty == 'D' && dataProgress != undefined 
-        ? userDataUpdate(object, setUserData, `/${router.query.Bmateria.toLowerCase()}/progress/${dataItem.id}`, setUserSuccess)
-        : (difficulty == 'D' ? setUserSuccess('noD') :'')
+        difficulty == 'D' && dataProgress != undefined
+            ? userDataUpdate(userDB, object, setUserData, `/${router.query.Bmateria.toLowerCase()}/progress/${dataItem.id}`, setUserSuccess)
+            : (difficulty == 'D' ? setUserSuccess('noD') : '')
     }
-
-    console.log(bank)
-
 
     useEffect(() => {
         if (userDB.university) {
             if (bank) {
                 bank.bank[router.query.Bmateria.toLowerCase()] ? console.log('exist') : console.log('no exist')
             } else {
-                getAllBank(userDB, userDB.subjects, setUserBank)   
+                getAllBank(userDB, userDB.subjects, setUserBank)
             }
         }
-        dataItem? setDataProgress(userDB.subjects[router.query.Bmateria.toLowerCase()].progress[dataItem.id]) :''
+        dataItem ? setDataProgress(userDB.subjects[router.query.Bmateria.toLowerCase()].progress[dataItem.id]) : ''
     }, [userDB, dataProgress, userDB.university, bank, seeRes])
-
-
-
-
-    // useEffect(() => {
-    //     if (userDB.university) {
-    //         if (bank) {
-    //             bank[router.query.Bmateria.toLowerCase()] ? console.log('exist') : updateBank(userDB.university, router.query.Bmateria, bank, setUserBank)
-    //         } else {
-    //             updateBank(userDB.university, router.query.Bmateria, bank, setUserBank)
-    //         }
-    //     }
-    //     dataItem? setDataProgress(userDB.subjects[router.query.Bmateria.toLowerCase()].progress[dataItem.id]) :''
-    // }, [userDB, dataProgress, userDB.university, bank, seeRes])
 
     return (
         <PageSimulacroLayout>
@@ -111,16 +90,16 @@ function Simulacro() {
                             <span className={style.itemIntentos}>Intentos: {dataProgress ? dataProgress.success + dataProgress.mistakes + dataProgress.undefineds : 0}</span>
                         </div>
                         <div className={style.selectDifficult}>
-                            <button className={`${style.buttonDifficult} ${dataProgress && dataProgress.success >= 3 && dataProgress.mistakes * 3 <= dataProgress.success ? style.buttonDifficultActive :''} ${dataProgress && dataProgress.difficulty == 'F' ? style.buttonDifficultSelect : ''}`} onClick={() => changeDifficult('F')}>F</button>
-                            <button className={`${style.buttonDifficult} ${dataProgress && dataProgress.success >= 2 && dataProgress.mistakes * 2 <= dataProgress.success ? style.buttonDifficultActive :''} ${dataProgress && dataProgress.difficulty == 'R' ? style.buttonDifficultSelect : ''}`} onClick={() => changeDifficult('R')}>R</button>
-                            <button className={`${style.buttonDifficult} ${dataProgress ? style.buttonDifficultActive :''} ${dataProgress && dataProgress.difficulty == 'D' ? style.buttonDifficultSelect : ''}`} onClick={() => changeDifficult('D')}>D</button>
+                            <button className={`${style.buttonDifficult} ${dataProgress && dataProgress.success >= 3 && dataProgress.mistakes * 3 <= dataProgress.success ? style.buttonDifficultActive : ''} ${dataProgress && dataProgress.difficulty == 'F' ? style.buttonDifficultSelect : ''}`} onClick={() => changeDifficult('F')}>F</button>
+                            <button className={`${style.buttonDifficult} ${dataProgress && dataProgress.success >= 2 && dataProgress.mistakes * 2 <= dataProgress.success ? style.buttonDifficultActive : ''} ${dataProgress && dataProgress.difficulty == 'R' ? style.buttonDifficultSelect : ''}`} onClick={() => changeDifficult('R')}>R</button>
+                            <button className={`${style.buttonDifficult} ${dataProgress ? style.buttonDifficultActive : ''} ${dataProgress && dataProgress.difficulty == 'D' ? style.buttonDifficultSelect : ''}`} onClick={() => changeDifficult('D')}>D</button>
                         </div>
                         <span>Aciertos: {dataProgress ? dataProgress.success : ''}</span>
-                        <ProgressBar bgcolor={'#3FC500'} completed={ dataProgress ? Math.round(dataProgress.success * 100 / (dataProgress.success + dataProgress.mistakes + dataProgress.undefineds)) : 0} />
+                        <ProgressBar bgcolor={'#3FC500'} completed={dataProgress ? Math.round(dataProgress.success * 100 / (dataProgress.success + dataProgress.mistakes + dataProgress.undefineds)) : 0} />
                         <span>Errores: {dataProgress ? dataProgress.mistakes : ''}</span>
-                        <ProgressBar bgcolor={'red'} completed={ dataProgress ? Math.round(dataProgress.mistakes * 100 / (dataProgress.success + dataProgress.mistakes + dataProgress.undefineds)) : 0} />
+                        <ProgressBar bgcolor={'red'} completed={dataProgress ? Math.round(dataProgress.mistakes * 100 / (dataProgress.success + dataProgress.mistakes + dataProgress.undefineds)) : 0} />
                         <span>No respondidos: {dataProgress ? dataProgress.undefineds : ''} </span>
-                        <ProgressBar bgcolor={'#365b74'} completed={ dataProgress ? Math.round(dataProgress.undefineds * 100 / (dataProgress.success + dataProgress.mistakes + dataProgress.undefineds)) : 0} />
+                        <ProgressBar bgcolor={'#365b74'} completed={dataProgress ? Math.round(dataProgress.undefineds * 100 / (dataProgress.success + dataProgress.mistakes + dataProgress.undefineds)) : 0} />
                     </>}
             </Modal>
             {success == 'save' && <Success>Actualizando</Success>}
@@ -134,6 +113,41 @@ export default WithAuth(Simulacro)
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // useEffect(() => {
+    //     if (userDB.university) {
+    //         if (bank) {
+    //             bank[router.query.Bmateria.toLowerCase()] ? console.log('exist') : updateBank(userDB.university, router.query.Bmateria, bank, setUserBank)
+    //         } else {
+    //             updateBank(userDB.university, router.query.Bmateria, bank, setUserBank)
+    //         }
+    //     }
+    //     dataItem? setDataProgress(userDB.subjects[router.query.Bmateria.toLowerCase()].progress[dataItem.id]) :''
+    // }, [userDB, dataProgress, userDB.university, bank, seeRes])
 
 
 

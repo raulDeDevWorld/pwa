@@ -1,49 +1,20 @@
-
 import { useState, useEffect } from 'react'
 import { useUser } from '../../../context/Context.js'
-import { setProgress, setErrors, userDataUpdate, getEspecificData } from '../../../firebase/utils'
 import { useRouter } from 'next/router'
 import BlackFont from '../../../components/BlackFont'
 import PageUserLayout from '../../../layouts/PageUserLayout'
 import { WithAuth } from '../../../HOCs/WithAuth'
 import style from '../../../styles/Result.module.css'
-
 import { CircularProgressBar } from "@tomik23/react-circular-progress-bar";
-
-
 
 function Simulacro() {
     const { userDB,  simulacro } = useUser()
-    const [select, setSelect] = useState(null)
     const [points, setPoints] = useState(null)
-    const [array, setArray] = useState(['a', 'b', 'c', 'd'])
-
     const router = useRouter()
 
-    function back() {
-        router.query.Index > 1
-            ? router.back()
-            : ''
-        setSelect(null)
-    }
-    function next() {
-        router.query.Index < simulacro.length
-            ? router.push(`/Simulacro/${router.query.Simulacro}/${parseInt(router.query.Index) + 1}`)
-            : ''
-        setSelect(null)
-    }
     function seeAnswers() {
         router.push(`/Simulacro/${router.query.Smateria}/Answers/1`)
     }
-    function nav(i) {
-
-        router.push(`/Simulacro/${router.query.Simulacro}/${parseInt(i) + 1}`)
-
-        setSelect(null)
-    }
-
-    //    console.log(simulacro)
-
     function revision() {
         const data = simulacro.reduce((object, item) => {
             if (item.userAnswer == undefined) {
@@ -56,11 +27,10 @@ function Simulacro() {
         setPoints(data)
     }
 
-
-    console.log(points)
     useEffect(() => {
         simulacro !== null ? revision() : ''
     }, []);
+
     return (
         <PageUserLayout>
             {userDB !== 'loading' &&
@@ -141,8 +111,24 @@ export default WithAuth(Simulacro)
 
 
 
+// function back() {
+//     router.query.Index > 1
+//         ? router.back()
+//         : ''
+//     setSelect(null)
+// }
+// function next() {
+//     router.query.Index < simulacro.length
+//         ? router.push(`/Simulacro/${router.query.Simulacro}/${parseInt(router.query.Index) + 1}`)
+//         : ''
+//     setSelect(null)
+// }
+// function nav(i) {
 
+//     router.push(`/Simulacro/${router.query.Simulacro}/${parseInt(i) + 1}`)
 
+//     setSelect(null)
+// }
 
 
 

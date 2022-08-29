@@ -1,11 +1,10 @@
-import Head from 'next/head'
 import { WithoutAuth } from '../HOCs/WithoutAuth'
 import { withFacebook, withGoogle } from '../firebase/utils'
 import InitialLayout from '../layouts/InitialLayout'
 import style from '../styles/Auth.module.css'
 import Link from 'next/link'
 
-function Login({posts}) {
+function Login() {
   return (
     <InitialLayout>
       <div className={style.container}>

@@ -114,7 +114,9 @@ function getData(uid, setUserData) {
             }
       }
 }
-
+function getUserData () {
+      
+}
 //Registro de DATOS generales de un usuario
 function userDataRegister(object, router, url) {
       const uid = auth.currentUser.uid
@@ -127,23 +129,6 @@ function userDataRegister(object, router, url) {
             .catch((error) => {
                   // The write failed...
             });
-}
-
-//Actualizacion de DATOS de usuario
-function userDataUpdate(object, setUserData, setUserSuccess, query, dataIDB) {
-      const uid = auth.currentUser.uid
-      const date = Date()
-      if (navigator.onLine) {
-      update(ref(db, `users/${uid}/${query ? query :''}`), object)
-            .then(() => {
-                  update(ref(db, `users/${uid}`), {date   })
-                  updateIndexedDB(query ? dataIDB : object, setUserData, setUserSuccess, 'userDB')
-                  getData(uid, setUserData)
-                  setUserSuccess && setUserSuccess('save')
-            })            
-      }else{
-            updateIndexedDB(query ? {...dataIDB, date} : {...object, date}, setUserData, setUserSuccess, 'userDB')
-      }
 }
 
 //Consulta de FACULTADES para el registro
@@ -160,6 +145,21 @@ function getFac(university, setUniversityData) {
       }).catch((error) => {
             console.error(error);
       });
+}
+
+//Actualizacion de DATOS de usuario
+function userDataUpdate(userDB, object, setUserData, setUserSuccess, query, dataIDB) {
+      const uid = auth.currentUser.uid
+      const date = Date()
+      if (navigator.onLine) {
+      update(ref(db, `users/${uid}/${query ? query :''}`), object)
+            .then(() => {
+                  update(ref(db, `users/${uid}`), {date   })
+                  updateIndexedDB(userDB, query ? dataIDB : object, setUserData, setUserSuccess, 'userDB')
+            })            
+      }else{
+            updateIndexedDB(userDB, query ? {...dataIDB, date} : {...object, date}, setUserData, setUserSuccess, 'userDB')
+      }
 }
 
 //Creacion de IndexedDB SOLO SE EJECUTA UNA VEZ X CADA ALMACEN
@@ -193,29 +193,31 @@ function createIndexedDB(userDB, rute) {
 }
 
 //Actualizacion de IndexedDB Online y offline
-function updateIndexedDB(newDB, setUserData, setUserSuccess, rute,) {
+function updateIndexedDB(userDB, newDB, setUserData, setUserSuccess, rute,) {
       const indexedDB = window.indexedDB
 
-      if(indexedDB){
+      if (indexedDB) {
             let swoouDB
             const request = indexedDB.open('swoouPreuniversity', 1)
 
             request.onsuccess = () => {
                   swoouDB = request.result
-                  transactionUpdate ()
+                  transactionUpdate()
             }
-            function transactionUpdate () {
+            function transactionUpdate() {
                   const transaction = swoouDB.transaction([rute], 'readwrite')
                   const objectStore = transaction.objectStore(rute)
                   const requestObjectStore = objectStore.get(auth.currentUser.uid)
 
                   requestObjectStore.onsuccess = () => {
-                        objectStore.put({...requestObjectStore.result, ...newDB})
-                        setUserData({...requestObjectStore.result, ...newDB})
+                        objectStore.put({ ...requestObjectStore.result, ...newDB })
+                        setUserData({ ...requestObjectStore.result, ...newDB })
                         setUserSuccess ? setUserSuccess('save') : ''
                   }
             }
-
+      } else {
+            setUserData({ ...userDB, ...newDB })
+            setUserSuccess ? setUserSuccess('save') : ''
       }
 }
 
@@ -280,7 +282,6 @@ function dataCompare(firebaseDB, setUserData) {
       }
 }
 
-
 //Traemos todo el banco de preguntas
 function getAllBank(userDB, subjects, setUserBank) {
       const indexedDB = window.indexedDB
@@ -313,7 +314,6 @@ function getAllBank(userDB, subjects, setUserBank) {
                         e.target.result != undefined ? setUserBank(e.target.result) : getUserBank(userDB, subjects, setUserBank)
                   }
             }
-
       } else {
             getUserBank(userDB, subjects, setUserBank)
       }
@@ -351,9 +351,6 @@ async function getUserBank(userDB, subjects, setUserBank) {
             setUserBank(object)
       }
 }
-
-
-
 
 //Seleccionamos las preguntas para el simulacro  
 function getDataForSimulacro(userDB, subjects, materia, cantidad, simulacro, setUserSimulacro, bank, setUserBank) {

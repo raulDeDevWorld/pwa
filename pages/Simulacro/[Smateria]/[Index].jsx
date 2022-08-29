@@ -1,21 +1,17 @@
-
 import { useState, useEffect } from 'react'
 import { useUser } from '../../../context/Context.js'
-import { setProgress, setErrors, userDataUpdate, getDataForSimulacro } from '../../../firebase/utils'
+import { userDataUpdate, getDataForSimulacro } from '../../../firebase/utils'
 import { useRouter } from 'next/router'
 import Error from '../../../components/Error'
 import Timer from '../../../components/Timer'
-import BlackFont from '../../../components/BlackFont'
 import PageSimulacro from '../../../layouts/PageSimulacro'
 import { WithAuth } from '../../../HOCs/WithAuth'
 import style from '../../../styles/Smateria.module.css'
-
 
 function Simulacro() {
     const { userDB, setUserSuccess, success, setUserData, simulacro, setUserSimulacro, bank, setUserBank, fisherArray, setUserFisherArray } = useUser()
     const [select, setSelect] = useState(null)
     const [count, setCount] = useState(0)
-
     const router = useRouter()
 
     function fisherYatesShuffle(arr) {
@@ -33,17 +29,8 @@ function Simulacro() {
             return [...array, updateItem]
         }, [])
         setUserSimulacro(updateSimulacro, null)
-        // const updateCount = simulacro.reduce((i, item) => {
-        //     console.log(item)
-        //     const updateItem = item.userAnswer !== null ? console.log('si') : console.log('no') 
-        //     return updateItem 
-        // }, 0)
-        // setCount(1)
-        // setTimeout(next, 1500)
         simulacro[router.query.Index - 1].userAnswer == undefined ? setCount(count + 1) : ''
-
     }
-
     function back() {
         router.query.Index > 1
             ? router.push(`/Simulacro/${router.query.Smateria}/${parseInt(router.query.Index) - 1}`)
@@ -77,24 +64,20 @@ function Simulacro() {
 
             return { ...object, ...newItemObject }
         }, {})
-        const indexedDB = {subjects: {...userDB.subjects, [router.query.Smateria.toLowerCase()]: {...userDB.subjects[router.query.Smateria.toLowerCase()], progress : { ...oldObject, ...newObject }}}}
+        const indexedDB = { subjects: { ...userDB.subjects, [router.query.Smateria.toLowerCase()]: { ...userDB.subjects[router.query.Smateria.toLowerCase()], progress: { ...oldObject, ...newObject } } } }
         const query = `subjects/${router.query.Smateria.toLowerCase()}/progress`
-        userDataUpdate({ ...oldObject, ...newObject }, setUserData, setUserSuccess, query, indexedDB)
+        userDataUpdate(userDB, { ...oldObject, ...newObject }, setUserData, setUserSuccess, query, indexedDB)
         router.push(`/Simulacro/${router.query.Smateria}/Result`)
     }
     function nav(i) {
-
         router.push(`/Simulacro/${router.query.Smateria}/${parseInt(i) + 1}`)
-
         setSelect(null)
     }
-
- console.log(simulacro)
 
     useEffect(() => {
         fisherYatesShuffle(fisherArray)
         userDB.university !== null && userDB.university !== undefined
-            ? getDataForSimulacro(userDB, userDB.subjects , router.query.Smateria, userDB.subjects[router.query.Smateria.toLowerCase()].config.questions, simulacro, setUserSimulacro, bank, setUserBank)
+            ? getDataForSimulacro(userDB, userDB.subjects, router.query.Smateria, userDB.subjects[router.query.Smateria.toLowerCase()].config.questions, simulacro, setUserSimulacro, bank, setUserBank)
             : ''
     }, [userDB.university, bank]);
 
@@ -104,7 +87,7 @@ function Simulacro() {
                 <div className={style.container}>
                     {simulacro !== null &&
                         <>
-                        <Timer time={userDB.subjects[router.query.Smateria.toLowerCase()].config.time} style={style.timer} />
+                            <Timer time={userDB.subjects[router.query.Smateria.toLowerCase()].config.time} style={style.timer} />
                             <div className={style.dataContainer}>
                                 <div className={style.asksBar}>
                                     {simulacro.map((item, index) =>
@@ -116,10 +99,10 @@ function Simulacro() {
                                     <span className={style.answersCount}>Resp: {count}/{simulacro.length}</span>
                                 </div>
                             </div>
-                            <div className={style.asksContainer}> 
-                                    <span className={style.move} onClick={back}>{'<|'}</span>
-                                    <p className={style.ask}>{simulacro[router.query.Index - 1].pregunta}</p>
-                                    <span className={style.move} onClick={next}>{'|>'}</span>
+                            <div className={style.asksContainer}>
+                                <span className={style.move} onClick={back}>{'<|'}</span>
+                                <p className={style.ask}>{simulacro[router.query.Index - 1].pregunta}</p>
+                                <span className={style.move} onClick={next}>{'|>'}</span>
                             </div>
                             <div className={style.answersContainer}>
                                 <div className={`${style.answerButtons} ${select == fisherArray[0] || simulacro[router.query.Index - 1].userAnswer == fisherArray[0] ? style.green : ''}`} onClick={(e) => { selectAnswer(fisherArray[0]) }} > {simulacro[router.query.Index - 1][`${fisherArray[0]}`]} </div>
@@ -136,6 +119,27 @@ function Simulacro() {
     )
 }
 export default WithAuth(Simulacro)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        // const updateCount = simulacro.reduce((i, item) => {
+        //     console.log(item)
+        //     const updateItem = item.userAnswer !== null ? console.log('si') : console.log('no') 
+        //     return updateItem 
+        // }, 0)
+        // setCount(1)
+        // setTimeout(next, 1500)
 
 
 {/* <PageSimulacro>

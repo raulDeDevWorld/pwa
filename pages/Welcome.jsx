@@ -10,10 +10,8 @@ import style from '../styles/Welcome.module.css'
 import Error from '../components/Error'
 import BlackFont from '../components/BlackFont'
 
-
-
 function Welcome() {
-    const { user, avatar, success, setUserSuccess } = useUser()
+    const { userDB, user, avatar, success, setUserSuccess } = useUser()
     const router = useRouter()
 
     // Registro de un nuevo usuario
@@ -22,7 +20,6 @@ function Welcome() {
         const name = e.target.form[0].value
         const school = e.target.form[1].value
         const cell = e.target.form[2].value
-
 
         if (name.length > 2 && school.length > 2 && cell.length > 2) {
             const object = {
@@ -34,7 +31,7 @@ function Welcome() {
                 premium: false,
                 uid: user.uid,
             }
-            userDataRegister(object, router, '/Edu/')
+            userDataRegister( object, router, '/Edu/')
         } else {
             setUserSuccess(false)
         }
@@ -47,8 +44,8 @@ function Welcome() {
     useEffect(() => {
         avatar == null ? router.push('/Home/') : ''
     }, [avatar,]);
-    return (
 
+    return (
         <PageUserLayout>
             {success == false && <Error>Llene todo formulario correctamente</Error>}
             {avatar !== null &&
@@ -82,10 +79,7 @@ function Welcome() {
                 </div>
             }
         </PageUserLayout>
-
-
     )
 }
-
 export default WithAuth(Welcome)
 
