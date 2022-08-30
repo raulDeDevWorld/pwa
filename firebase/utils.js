@@ -88,7 +88,6 @@ function getData(uid, setUserData) {
       if (navigator.onLine) {
             get(ref(db, `/users/${uid}`)).then((snapshot) => {
                   //Mandamos la data al CONTEXT "userDB"
-                  setUserData(snapshot.val())
                   dataCompare(snapshot.val(), setUserData)
             }).catch((error) => {
                   console.error(error);
@@ -245,10 +244,12 @@ function dataCompare(firebaseDB, setUserData) {
                   })
             }
             const addData = () => {
-                  const transaction = swoouDB.transaction(['swoouPreuniversity'], 'readwrite')
-                  const objectStore = transaction.objectStore('swoouPreuniversity')
-
+                  const transaction = swoouDB.transaction(['userDB'], 'readwrite')
+                  const objectStore = transaction.objectStore('userDB')
                   const request = objectStore.add({ date: Date(), ...firebaseDB, })
+                  request.onsuccess = (e) => {
+                        setUserData({ date: Date(), ...firebaseDB, })
+                  }
             }
 
             function transactionDataCompare() {
@@ -266,7 +267,7 @@ function dataCompare(firebaseDB, setUserData) {
                                     console.log('idb es reciente') 
                                     userDataUpdate(firebaseDB, { date: Date(), ...firebaseDB, ...requestObjectStore.result }, setUserData, null, null, null, dateIDB)
                               } else {
-                                    firebaseDB.date == null ? userDataUpdate(firebaseDB, { date: Date(), ...firebaseDB }, setUserData, null, null, null, firebaseDB.date) : ''
+                                    firebaseDB.date != null ? userDataUpdate(firebaseDB, { date: Date(), ...firebaseDB }, setUserData, null, null, null, firebaseDB.date) : ''
 
                                     console.log('fb es reciente')
                                     const objectStoreUpdate = objectStore.put({ date: Date(), ...firebaseDB })
@@ -280,6 +281,8 @@ function dataCompare(firebaseDB, setUserData) {
                         }
                   }
             }
+      }else{
+            setUserData(firebaseDB)
       }
 }
 
