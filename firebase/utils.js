@@ -89,7 +89,7 @@ function getData(uid, setUserData) {
             get(ref(db, `/users/${uid}`)).then((snapshot) => {
                   //Mandamos la data al CONTEXT "userDB"
                   setUserData(snapshot.val())
-                  // dataCompare(snapshot.val(), setUserData)
+                  dataCompare(snapshot.val(), setUserData)
             }).catch((error) => {
                   console.error(error);
             });
@@ -114,16 +114,14 @@ function getData(uid, setUserData) {
             }
       }
 }
-function getUserData () {
-      
-}
+
 //Registro de DATOS generales de un usuario
 function userDataRegister(object, router, url) {
       const uid = auth.currentUser.uid
 
       set(ref(db, `users/${uid}`), object)
             .then(() => {
-                  createIndexedDB({...object, date: Date()}, 'userDB')
+                  createIndexedDB({ ...object, date: Date() }, 'userDB')
                   router.push(url)
             })
             .catch((error) => {
@@ -148,39 +146,39 @@ function getFac(university, setUniversityData) {
 }
 
 //Actualizacion de DATOS de usuario
-function userDataUpdate(userDB, object, setUserData, setUserSuccess, query, dataIDB) {
+function userDataUpdate(userDB, object, setUserData, setUserSuccess, query, dataIDB, dateDB) {
       const uid = auth.currentUser.uid
-      const date = Date()
+      const date = dateDB != null ? dateDB : Date()
       if (navigator.onLine) {
-      update(ref(db, `users/${uid}/${query ? query :''}`), object)
-            .then(() => {
-                  update(ref(db, `users/${uid}`), {date   })
-                  updateIndexedDB(userDB, query ? dataIDB : object, setUserData, setUserSuccess, 'userDB')
-            })            
-      }else{
-            updateIndexedDB(userDB, query ? {...dataIDB, date} : {...object, date}, setUserData, setUserSuccess, 'userDB')
+            update(ref(db, `users/${uid}/${query ? query : ''}`), object)
+                  .then(() => {
+                        update(ref(db, `users/${uid}`), { date })
+                        updateIndexedDB(userDB, query ? dataIDB : object, setUserData, setUserSuccess, 'userDB')
+                  })
+      } else {
+            updateIndexedDB(userDB, query ? { ...dataIDB, date } : { ...object, date }, setUserData, setUserSuccess, 'userDB')
       }
 }
 
 //Creacion de IndexedDB SOLO SE EJECUTA UNA VEZ X CADA ALMACEN
 function createIndexedDB(userDB, rute) {
       const indexedDB = window.indexedDB
-      if(indexedDB){
+      if (indexedDB) {
             let swoouDB
             const request = indexedDB.open('swoouPreuniversity', 1)
-             request.onsuccess =  (e)  => {
-                  swoouDB =  e.target.result 
-                  addData()                
+            request.onsuccess = (e) => {
+                  swoouDB = e.target.result
+                  addData()
             }
             request.onupgradeneeded = (e) => {
                   swoouDB = e.target.result
                   const objectStoreUserDB = swoouDB.createObjectStore('userDB', {
                         keyPath: 'uid'
-                  }) 
+                  })
                   const objectStoreBAnkDB = swoouDB.createObjectStore('bankDB', {
                         keyPath: 'facultad'
-                  })    
-            }       
+                  })
+            }
             request.onerror = (err) => {
                   console.log(err)
             }
@@ -224,61 +222,64 @@ function updateIndexedDB(userDB, newDB, setUserData, setUserSuccess, rute,) {
 //Actualizacion de IndexedDB al FECHA MAS RECIENTE
 function dataCompare(firebaseDB, setUserData) {
       const indexedDB = window.indexedDB
-      if(indexedDB){
-      let swoouDB
-      // OPEN habre una base de datos, caso que no exista lo crea con la referencia solicitada
-      const request = indexedDB.open('swoouPreuniversity', 1)
+      if (indexedDB) {
+            let swoouDB
+            // OPEN habre una base de datos, caso que no exista lo crea con la referencia solicitada
+            const request = indexedDB.open('swoouPreuniversity', 1)
 
-      request.onsuccess = async (e) => {
-            //RESULT almacena los detalles de la base de datos
-            swoouDB = e.target.result
-            transactionDataCompare ()
-      }
+            request.onsuccess = async (e) => {
+                  //RESULT almacena los detalles de la base de datos
+                  swoouDB = e.target.result
+                  transactionDataCompare()
+            }
 
-      request.onupgradeneeded = (e) => {
-            //RESULT almacena los detalles de la base de datos
-            swoouDB = e.target.result
-            //El OBJECTSTORE es el almacen donde se guardaran los datos JSON
-            const objectStore = swoouDB.createObjectStore('swoouPreuniversity', {
-                  keyPath: 'uid'
-            })     
-      }  
-      const addData = () => {
-            const transaction = swoouDB.transaction(['swoouPreuniversity'], 'readwrite')
-            const objectStore = transaction.objectStore('swoouPreuniversity')
-            
-            const request = objectStore.add({date: Date(), ...firebaseDB,})
-      }
+            request.onupgradeneeded = (e) => {
+                  //RESULT almacena los detalles de la base de datos
+                  swoouDB = e.target.result
+                  //El OBJECTSTORE es el almacen donde se guardaran los datos JSON
+                  const objectStoreUserDB = swoouDB.createObjectStore('userDB', {
+                        keyPath: 'uid'
+                  })
+                  const objectStoreBAnkDB = swoouDB.createObjectStore('bankDB', {
+                        keyPath: 'facultad'
+                  })
+            }
+            const addData = () => {
+                  const transaction = swoouDB.transaction(['swoouPreuniversity'], 'readwrite')
+                  const objectStore = transaction.objectStore('swoouPreuniversity')
 
-      function transactionDataCompare () {
-            const transaction = swoouDB.transaction(['swoouPreuniversity'], 'readwrite')
-            const objectStore = transaction.objectStore('swoouPreuniversity')
-            const requestObjectStore = objectStore.get(auth.currentUser.uid)
-            requestObjectStore.onsuccess = () => {
-                  const IDB = requestObjectStore.result
-                  if (IDB == undefined) {
-                        addData()
-                  } else {
-                        const dateIDB = requestObjectStore.result.date
+                  const request = objectStore.add({ date: Date(), ...firebaseDB, })
+            }
 
-                        if (dateIDB > firebaseDB.date) {
-                              console.log('idb es reciente')
-                              userDataUpdate({ date: Date(), ...firebaseDB, ...requestObjectStore.result }, setUserData, null)
+            function transactionDataCompare() {
+                  const transaction = swoouDB.transaction(['userDB'], 'readwrite')
+                  const objectStore = transaction.objectStore('userDB')
+                  const requestObjectStore = objectStore.get(auth.currentUser.uid)
+                  requestObjectStore.onsuccess = () => {
+                        const IDB = requestObjectStore.result
+                        if (IDB == undefined) {
+                              addData()
                         } else {
-                              firebaseDB.date == null ? userDataUpdate({ date: Date(), ...firebaseDB}, setUserData, null) : ''
+                              const dateIDB = requestObjectStore.result.date
 
-                              console.log('fb es reciente')
-                              const objectStoreUpdate = objectStore.put({ date: Date(), ...firebaseDB})
-                              objectStoreUpdate.onsuccess = () => {
+                              if (dateIDB > firebaseDB.date) {
+                                    console.log('idb es reciente') 
+                                    userDataUpdate(firebaseDB, { date: Date(), ...firebaseDB, ...requestObjectStore.result }, setUserData, null, null, null, dateIDB)
+                              } else {
+                                    firebaseDB.date == null ? userDataUpdate(firebaseDB, { date: Date(), ...firebaseDB }, setUserData, null, null, null, firebaseDB.date) : ''
 
+                                    console.log('fb es reciente')
+                                    const objectStoreUpdate = objectStore.put({ date: Date(), ...firebaseDB })
+                                    objectStoreUpdate.onsuccess = () => {
+
+                                    }
+                                    objectStoreUpdate.onerror = (e) => {
+                                          console.log(e)
+                                    }
                               }
-                              objectStoreUpdate.onerror = (e) => {
-                                    console.log(e)
-                              }
-                        }  
+                        }
                   }
             }
-      }
       }
 }
 
@@ -305,11 +306,11 @@ function getAllBank(userDB, subjects, setUserBank) {
             request.onerror = (err) => {
                   console.log(err)
             }
-            function verify () {
+            function verify() {
                   const transaction = swoouDB.transaction('bankDB', 'readwrite')
                   const objectStore = transaction.objectStore('bankDB')
                   const getRequest = objectStore.get(`${userDB.university}-${userDB.facDB}`)
-                  
+
                   getRequest.onsuccess = async (e) => {
                         e.target.result != undefined ? setUserBank(e.target.result) : getUserBank(userDB, subjects, setUserBank)
                   }
@@ -347,7 +348,7 @@ async function getUserBank(userDB, subjects, setUserBank) {
       if (indexedDB) {
             createIndexedDB(object, 'bankDB')
             setUserBank(object)
-      }else{
+      } else {
             setUserBank(object)
       }
 }
